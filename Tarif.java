@@ -1,5 +1,12 @@
 package lepackage;
 
+/**
+ * Tarif est la classe comprenant toutes les données pour un déplacement sans faire la distinction entre aller simple ou aller retour.
+ *
+ * @author Clément Sébillet
+ * @version 1.0
+ */
+
 public class Tarif {
 
 	private int dept;

@@ -1,50 +1,79 @@
 package lepackage;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import lepackage.Calcul;
 
+/**
+ * main est le programme principal qui va permettre la création des liste pour aller retour et aller simple, la saisie de l'utilisateur et le calcul du remboursement.
+ *
+ * @author Clément Sébillet
+ * @version 1.0
+ */
+
 public class main {
 
 	public static void main(String[] args) {
 
-		double [][] dept = {{21, 2, 0.86, 1.72, 21.93, 1.29, 2.58, 21.93},
-							{25, 2.1, 0.83, 1.66, 22.5, 1.2, 2.4, 22.5},
-							{39, 2.1, 0.83, 1.66, 22.5, 1.23, 2.46, 25},
-							{44, 2.2, 0.79,	1.58, 24.19, 1.19, 2.37, 24.19},
-							{72, 2.15, 0.79, 1.58, 22.86, 1.19,	2.38, 22.86},
-							{73, 2.4, 0.84,	1.68, 25.4,	1.26, 2.52,	25.4},
-							{74, 3.15, 0.92, 1.84, 17.3, 1.38, 2.76, 17.3},
-							{75, 2.5, 1, 1.24, 0, 1.5, 1.5, 0},
-							{85, 2.3, 0.8, 1.6, 22.2, 1.2, 2.4,	22.2},
-							{90, 2.2, 0.83,1.66, 21, 1.15,	2.3, 21}};
+		// création d'une liste
+		List<AR> AR =  new ArrayList<AR>();
+		List<AS> AS =  new ArrayList<AS>();
 
-		// crÃ©ation d'une liste
-		List<AR> maListeAR =  new ArrayList<AR>();
-		List<AS> maListeAS =  new ArrayList<AS>();
-
-		// ajout d'Ã©lÃ©ments Ã  la liste
-		int i;
-		for (i=0;i<10;i++){
-			maListeAR.add(new AR((int)dept[i][0], dept[i][1], dept[i][4], dept[i][7],
-					dept[i][2], dept[i][5]));
-			maListeAS.add(new AS((int)dept[i][0], dept[i][1], dept[i][5], dept[i][7],
-					dept[i][3], dept[i][6]));
-			/*
-			maListeAR.add(dept[i][0]);
-			maListeAR.add(dept[i][1]);
-			maListeAR.add(dept[i][2]);
-			maListeAR.add(dept[i][4]);
-			maListeAR.add(dept[i][5]);
-			maListeAR.add(dept[i][7]);
-
-			maListeAS.add(dept[i][0]);
-			maListeAS.add(dept[i][1]);
-			maListeAS.add(dept[i][3]);
-			maListeAS.add(dept[i][4]);
-			maListeAS.add(dept[i][6]);
-			maListeAS.add(dept[i][7]);*/
+		try{
+			Class.forName("org.postgresql.Driver");
+		} catch (Exception e) {
+		    System.out.println("Driver PostgreSQL introuvable !!!");
+		    System.exit(0);
 		}
+
+		//Création d'un objet de type Connection
+    	Connection maConnect = null;
+
+    	try{
+    		String url = "jdbc:postgresql://172.16.99.2:5432/csebillet";
+    		maConnect = DriverManager.getConnection(url, "c.sebillet", "passe");
+    	}catch(Exception e){
+    		System.out.println("Une erreur est survenue lors de la connexion à la base de donnée");
+    	}
+
+    	Statement maReq = null;
+
+    	try{
+    		maReq = maConnect.createStatement();
+    	}catch(Exception e){
+
+    	}
+
+    	String texteRequete = "select * from \"taxi\".\"dept\"";
+
+
+		// définition de l'objet qui récupérera le résultat de l'exécution de la requête :
+		ResultSet curseurResultat = null;
+		try {
+			curseurResultat = maReq.executeQuery(texteRequete);
+
+			// tant qu'il y a encore une ligne résultat à lire
+			while(curseurResultat.next())
+	         {
+	        	AR.add(new AR (curseurResultat.getInt("dept"),curseurResultat.getDouble("priseCharge"), curseurResultat.getDouble("tarifKMARJS"),curseurResultat.getDouble("tarifHoraireJS"),curseurResultat.getDouble("tarifKMARND"),curseurResultat.getDouble("tarifHoraireND")));
+	 			AS.add(new AS (curseurResultat.getInt("dept"),curseurResultat.getDouble("priseCharge"), curseurResultat.getDouble("tarifKMASJS"),curseurResultat.getDouble("tarifHoraireJS"),curseurResultat.getDouble("tarifKMASND"),curseurResultat.getDouble("tarifHoraireND")));
+	         }
+
+			// on ferme le flux résultat
+			 curseurResultat.close();
+
+			// on ferme l'objet lié à la connexion
+			 maConnect.close();
+		} catch (SQLException e) {
+		    System.out.println("La requête ne retourne aucun résultat !!!");
+		    System.exit(0);
+		}
+
+		int i;
 
 		Saisie maSaisie = new Saisie();
 
@@ -55,8 +84,8 @@ public class main {
 			boolean trouve = false;
 			i = 0;
 
-			while(!trouve && i<maListeAR.size()){
-				if(maSaisie.getNumDept()==maListeAR.get(i).getDept()){
+			while(!trouve && i<AR.size()){
+				if(maSaisie.getNumDept()==AR.get(i).getDept()){
 					trouve = true;
 				}else{
 					i++;
@@ -73,7 +102,7 @@ public class main {
 			}
 		}while(!saisieOK);
 
-		System.out.println("Résultat : " + Calcul.calculer(i, maListeAR, maListeAS, maSaisie));
+		System.out.println("Résultat : " + Calcul.calculer(i, AR, AS, maSaisie));
 
 	}
 

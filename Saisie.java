@@ -1,5 +1,12 @@
 package lepackage;
 
+/**
+ * Saisie est la classe comprenant toute la saisie de l'utilisateur.
+ *
+ * @author Clément Sébillet
+ * @version 1.0
+ */
+
 import java.util.Scanner;
 
 public class Saisie {
@@ -31,6 +38,12 @@ public class Saisie {
 	    return numDept;
 	}
 
+	/**
+     * Met à jour le numéro du département.
+     *
+     * @param d
+     *            Le nouveau numero du département.
+     */
 	public void setNumDept(int d)
 	{
 	    numDept = d;
@@ -59,7 +72,7 @@ public class Saisie {
 	System.out.println("Veuillez saisir l'heure du deplacement (J ou N) :");
 	heureDep = deptObjet.next();
 
-	System.out.println("Veuillez saisir le temps du parcours (arrondi a  l'heure inferieure) :");
+	System.out.println("Veuillez saisir le temps du parcours (arrondi a  l'heure inferieure) :");
 	heurePar = deptObjet.nextInt();
 
 	System.out.println("Veuillez saisir le nb km parcouru :");
